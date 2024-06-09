@@ -157,6 +157,63 @@ class BitfinexClient:
             print('error, status_code = ', response.status_code)
             return response
 
+    @staticmethod
+    def get_order_book(symbol):
+        symbol = "f"+symbol
+        precision = "P3"
+        lenght = "100"
+        previous_level = 0
+        final_amount = 0
+        final_count_offers = 0
+        temp = []
+        url = f"https://api-pub.bitfinex.com/v2/book/{symbol}/{precision}?len={lenght}"
+        headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
+        data_all: list = json.loads(response.text)
+
+        for d in data_all:
+
+            # only bid
+            if d[3] > 0:
+
+                actual_level = d[0]
+                actual_day_per = d[1]
+                actual_count_offers = d[2]
+                actual_amount = d[3]
+
+                previous_amount = 0
+
+                if previous_level < actual_level:
+
+                    try:
+                        temp.append(data)
+                        previous_amount = data[2]
+                    except NameError:
+                        ...
+
+                    final_amount = 0
+                    final_count_offers = 0
+
+                    final_amount += int(previous_amount) + int(actual_amount)
+                    final_count_offers += int(actual_count_offers)
+                    data = [actual_level, final_count_offers, final_amount]
+
+                    previous_level = actual_level
+
+                elif previous_level == actual_level:
+
+                    final_amount += int(previous_amount) + int(actual_amount)
+                    final_count_offers += int(actual_count_offers)
+                    data = [actual_level, final_count_offers, final_amount]
+
+        try:
+            temp.append(data)
+        except NameError:
+            ...
+
+        return temp
+
+
 
 if __name__ == "__main__":
 
