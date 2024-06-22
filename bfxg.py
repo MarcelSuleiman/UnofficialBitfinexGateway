@@ -95,7 +95,7 @@ class BitfinexClient:
             print('error, get_wallets, status_code = ', response.status_code)
             return ''
 
-    def set_funding_order(self, _type, symbol, amount, rate, period, flags = 0):
+    def set_funding_order(self, _type, symbol, amount, rate, period, flags=0):
         payloads = {
             "type": _type,
             "symbol": symbol,
@@ -144,7 +144,6 @@ class BitfinexClient:
             return response
 
     def get_candles(self, symbol, limit):
-
         params = {
             "limit": limit,
         }
@@ -159,7 +158,7 @@ class BitfinexClient:
 
     @staticmethod
     def get_order_book(symbol):
-        symbol = "f"+symbol
+        symbol = symbol
         precision = "P3"
         lenght = "100"
         previous_level = 0
@@ -212,6 +211,25 @@ class BitfinexClient:
             ...
 
         return temp
+
+    @staticmethod
+    def get_ticker(symbol, type_):
+        if type_ == "t":
+            symbol = f"{type_}{symbol}USD"
+
+        elif type_ == "f":
+            symbol = f"{type_}{symbol}"
+
+        else:
+            raise TypeError(f"{type_} is not valid. Choose 't' as trading (BTSUSD) or 'f' as funding (USD)")
+
+        url = f"https://api-pub.bitfinex.com/v2/ticker/{symbol}"
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print('error, status_code = ', response.status_code)
+            return response
 
 
 
